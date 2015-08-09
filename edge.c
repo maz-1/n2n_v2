@@ -87,7 +87,7 @@ typedef char n2n_sn_name_t[N2N_EDGE_SN_HOST_SIZE];
 #else
     #define N2N_EDGE_NUM_SUPERNODES 2
 #endif
-#define N2N_EDGE_SUP_ATTEMPTS   3       /* Number of failed attmpts before moving on to next supernode. */
+#define N2N_EDGE_SUP_ATTEMPTS   0       /* Number of failed attmpts before moving on to next supernode. default 3*/
 
 
 /** Main structure type for edge. */
@@ -1390,8 +1390,8 @@ static void update_supernode_reg( n2n_edge_t * eee, time_t nowTime )
         return; /* Too early */
     }
 
-    if ( 0 == eee->sup_attempts )
-    {
+    /* if ( 0 == eee->sup_attempts )
+    { */
         /* Give up on that supernode and try the next one. */
         ++(eee->sn_idx);
 
@@ -1411,19 +1411,19 @@ static void update_supernode_reg( n2n_edge_t * eee, time_t nowTime )
                 traceEvent(TRACE_WARNING, "Changed active supernode to %s", eee->sn_ip_array[eee->sn_idx]);
             }
 #endif
-        traceEvent(TRACE_WARNING, "Supernode not responding - moving to %u of %u", 
-                   (unsigned int)eee->sn_idx, (unsigned int)eee->sn_num );
+       /* traceEvent(TRACE_WARNING, "Supernode not responding - moving to %u of %u", 
+                   (unsigned int)eee->sn_idx, (unsigned int)eee->sn_num ); */
 
 #ifdef N2N_MULTIPLE_SUPERNODES
         }
 #endif
 
         eee->sup_attempts = N2N_EDGE_SUP_ATTEMPTS;
-    }
+  /*  }
     else
     {
         --(eee->sup_attempts);
-    }
+    } */
 
 #ifdef N2N_MULTIPLE_SUPERNODES
     /* setting next supernode to register to */
@@ -2104,7 +2104,7 @@ static void readFromIPSocket( n2n_edge_t * eee )
                     orig_sender = &(ra.sock);
                 }
 
-                traceEvent(TRACE_NORMAL, "Rx REGISTER_SUPER_ACK myMAC=%s [%s] (external %s). Attempts %u",
+                traceEvent(TRACE_INFO, "Rx REGISTER_SUPER_ACK myMAC=%s [%s] (external %s). Attempts %u",
                            macaddr_str( mac_buf1, ra.edgeMac ),
                            sock_to_cstr(sockbuf1, &sender),
                            sock_to_cstr(sockbuf2, orig_sender), 
@@ -2140,7 +2140,14 @@ static void readFromIPSocket( n2n_edge_t * eee )
 #endif
 
                     /* REVISIT: store sn_back */
-                    eee->register_lifetime = ra.lifetime;
+                    if ( eee->sn_num > 1 )
+                    {
+                        eee->register_lifetime = ra.lifetime/2;
+                    }
+                    else
+                    {
+                        eee->register_lifetime = ra.lifetime;
+                    }
                     eee->register_lifetime = MAX( eee->register_lifetime, REGISTER_SUPER_INTERVAL_MIN );
                     eee->register_lifetime = MIN( eee->register_lifetime, REGISTER_SUPER_INTERVAL_MAX );
                 }
@@ -2339,6 +2346,7 @@ int main(int argc, char* argv[])
     char    ip_mode[N2N_IF_MODE_SIZE]="static";
     char    ip_addr[N2N_NETMASK_STR_SIZE] = "";
     char    netmask[N2N_NETMASK_STR_SIZE]="255.255.255.0";
+    char    pidfile[512];
     int     mtu = DEFAULT_MTU;
     int     got_s = 0;
 
@@ -2610,6 +2618,11 @@ int main(int argc, char* argv[])
     }
 #endif /* #ifdef N2N_HAVE_DAEMON */
 
+    sprintf(pidfile, "/var/run/%s.pid", tuntap_dev_name);
+    FILE *fp = fopen(pidfile, "w");
+    fprintf(fp, "%d", getpid());
+    fclose(fp);
+    
 
     traceEvent( TRACE_NORMAL, "Starting n2n edge %s %s", n2n_sw_version, n2n_sw_buildDate );
 
