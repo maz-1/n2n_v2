@@ -16,7 +16,7 @@ N2N_DEFINES=
 N2N_OBJS_OPT=
 LIBS_EDGE_OPT=
 
-N2N_OPTION_AES?="yes"
+N2N_OPTION_AES:="yes"
 #N2N_OPTION_AES=no
 #If you select "no" it defaults to OpenSSL.
 #N2N_OPTION_POLARSSL="yes"
