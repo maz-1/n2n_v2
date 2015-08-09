@@ -21,10 +21,15 @@ N2N_OPTION_AES?="yes"
 #If you select "no" it defaults to OpenSSL.
 #N2N_OPTION_POLARSSL="yes"
 N2N_OPTION_POLARSSL="no"
+N2N_HAVE_IPROUTE2="no"
 
 ifeq ($(N2N_OPTION_AES), "yes")
     N2N_DEFINES+="-DN2N_HAVE_AES"
-    LIBS_EDGE_OPT+=-lcrypto
+    ifeq ($(N2N_OPTION_POLARSSL), "yes")
+    	LIBS_EDGE_OPT+=-lpolarssl
+    else
+    	LIBS_EDGE_OPT+=-lcrypto
+    endif
 endif
 
 ifeq ($(N2N_OPTION_POLARSSL), "yes")
@@ -37,7 +42,7 @@ ifeq ($(SNM), yes)
 endif
 
 #Use IPRoute2
-ifneq (,$(wildcard /sbin/ip))
+ifeq ($(N2N_HAVE_IPROUTE2), "yes")
     N2N_DEFINES+="-DN2N_HAVE_IPROUTE2"
 endif
 
