@@ -3,7 +3,7 @@ N2N_OSNAME=$(shell uname -p)
 
 ########
 
-CC=gcc
+CC?=gcc
 DEBUG?=-g3
 #OPTIMIZATION?=-O2
 WARN?=-Wall -Wshadow -Wpointer-arith -Wmissing-declarations -Wnested-externs
@@ -20,8 +20,8 @@ N2N_OPTION_AES?="yes"
 #N2N_OPTION_AES=no
 #If you select "no" it defaults to OpenSSL.
 #N2N_OPTION_POLARSSL="yes"
-N2N_OPTION_POLARSSL="no"
-N2N_HAVE_IPROUTE2="no"
+N2N_OPTION_POLARSSL?="no"
+N2N_HAVE_IPROUTE2?="no"
 
 ifeq ($(N2N_OPTION_AES), "yes")
     N2N_DEFINES+="-DN2N_HAVE_AES"
