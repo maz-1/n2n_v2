@@ -98,7 +98,7 @@ int tuntap_open(tuntap_dev *device,
 #ifndef N2N_HAVE_IPROUTE2
       snprintf(buf, sizeof(buf), "/sbin/ifconfig %s hw ether %s",
 #else
-      snprintf(buf, sizeof(buf), "/sbin/ip link set %s address %s",
+      snprintf(buf, sizeof(buf), "/usr/sbin/ip link set %s address %s",
 #endif
                ifr.ifr_name, device_mac );
       system(buf);
@@ -106,7 +106,7 @@ int tuntap_open(tuntap_dev *device,
   }
 
 #ifdef N2N_HAVE_IPROUTE2
-  snprintf(buf, sizeof(buf), "/sbin/ip link set %s mtu %d",
+  snprintf(buf, sizeof(buf), "/usr/sbin/ip link set %s mtu %d",
            ifr.ifr_name, mtu );
   system(buf);
   traceEvent(TRACE_INFO, "Setting MTU: %s", buf);
@@ -118,7 +118,7 @@ int tuntap_open(tuntap_dev *device,
       snprintf(buf, sizeof(buf), "/sbin/ifconfig %s %s mtu %d up",
                ifr.ifr_name, device_ip, mtu);
 #else
-      snprintf(buf, sizeof(buf), "/sbin/ip addr change %s dev %s",
+      snprintf(buf, sizeof(buf), "/usr/sbin/ip addr change %s dev %s",
                device_ip, ifr.ifr_name);
 #endif
   }
@@ -146,7 +146,7 @@ int tuntap_open(tuntap_dev *device,
            traceEvent(TRACE_ERROR, "Failed converting number to string");
             return -1;
       }
-      snprintf(buf, sizeof(buf), "/sbin/ip addr change %s/%s dev %s broadcast %s",
+      snprintf(buf, sizeof(buf), "/usr/sbin/ip addr change %s/%s dev %s broadcast %s",
                device_ip, device_mask, ifr.ifr_name, device_broadcast);
 #endif
   }
@@ -155,7 +155,7 @@ int tuntap_open(tuntap_dev *device,
 #ifdef N2N_HAVE_IPROUTE2
   traceEvent(TRACE_INFO, "Setting IP: %s", buf);
 
-  snprintf(buf, sizeof(buf), "/sbin/ip link set dev %s up", ifr.ifr_name);
+  snprintf(buf, sizeof(buf), "/usr/sbin/ip link set dev %s up", ifr.ifr_name);
   system(buf);
 #endif
   traceEvent(TRACE_INFO, "Bringing up: %s", buf);
@@ -194,7 +194,7 @@ void tuntap_get_address(struct tuntap_dev *tuntap)
 #ifndef N2N_HAVE_IPROUTE2
     snprintf( buf, sizeof(buf), "/sbin/ifconfig %s | /bin/sed -e '/inet addr:/!d' -e 's/^.*inet addr://' -e 's/ .*$//'",
 #else
-    snprintf( buf, sizeof(buf), "/sbin/ip addr show dev %s | /bin/sed -e '/inet /!d' -e 's/^.*inet //' -e 's/\/.*$//'",
+    snprintf( buf, sizeof(buf), "/usr/sbin/ip addr show dev %s | /bin/sed -e '/inet /!d' -e 's/^.*inet //' -e 's/\/.*$//'",
 #endif
               tuntap->dev_name );
     fp=popen(buf, "r");
